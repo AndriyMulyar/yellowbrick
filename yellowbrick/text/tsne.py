@@ -344,16 +344,16 @@ class TSNEVisualizer(TextVisualizer):
             self.classes_ = np.array([self.NULL_CLASS])
 
         # Fit our internal transformer and transform the data.
-        vecs = self.transformer_.fit_transform(X)
-        self.n_instances_ = vecs.shape[0]
+        self.vecs = self.transformer_.fit_transform(X)
+        self.n_instances_ = self.vecs.shape[0]
 
         # Draw the vectors
-        self.draw(vecs, y, **kwargs)
+        self.draw(self.vecs, y, **kwargs)
 
         # Fit always returns self.
         return self
 
-    def draw(self, points, target=None, **kwargs):
+    def draw(self, points, target=None, point_annotations=None, **kwargs):
         """
         Called from the fit method, this method draws the TSNE scatter plot,
         from a set of decomposed points in 2 dimensions. This method also
@@ -402,6 +402,11 @@ class TSNEVisualizer(TextVisualizer):
                 points["x"], points["y"], c=colors[label], alpha=self.alpha, label=label
             )
 
+
+        if point_annotations is not None:
+            import mplcursors
+            mplcursors.cursor(self.ax).connect(
+                "add", lambda sel: sel.annotation.set_text(point_annotations[sel.target.index]))
         return self.ax
 
     def finalize(self, **kwargs):
